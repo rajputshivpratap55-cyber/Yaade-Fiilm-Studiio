@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yaade Fiilm Studiio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-pale: #F5E6B8;
+    --black: #050505;
+    --black-soft: #0E0E0E;
+    --black-mid: #161616;
+    --black-card: #1A1A1A;
+    --white: #FAFAFA;
+    --grey: #888;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ─── CUSTOM CURSOR ─── */
+  #cursor {
+    position: fixed; top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, background 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 40px; height: 40px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.4s ease, width 0.3s, height 0.3s, opacity 0.3s;
+    transform: translate(-50%, -50%);
+    opacity: 0.6;
+  }
+  body:hover #cursor { opacity: 1; }
+
+  /* ─── LOADER ─── */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--black);
+    z-index: 9000;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    transition: opacity 1s ease, visibility 1s;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 8rem);
+    letter-spacing: 0.3em;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 2s infinite;
+    background-size: 200% 100%;
+  }
+  .loader-bar {
+    width: 200px; height: 1px;
+    background: var(--black-mid);
+    margin-top: 2rem;
+    overflow: hidden;
+  }
+  .loader-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    animation: loadfill 2.5s ease forwards;
+  }
+  @keyframes loadfill { from { width: 0; } to { width: 100%; } }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 1.5rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(5,5,5,0.95);
+    backdrop-filter: blur(12px);
+    padding: 1rem 4rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--white); }
+  .nav-links { display: flex; gap: 3rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none; color: var(--grey);
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    position: relative; transition: color 0.3s;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px; background: var(--gold);
+    transition: width 0.4s ease;
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    border: 1px solid var(--gold);
+    color: var(--gold) !important;
+    padding: 0.6rem 1.6rem;
+    transition: background 0.3s !important;
+  }
+  .nav-cta:hover { background: var(--gold); color: var(--black) !important; }
+  .nav-cta::after { display: none !important; }
+
+  /* ─── HERO ─── */
+  #hero {
+    height: 100vh; width: 100%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(201,168,76,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 20%, rgba(201,168,76,0.04) 0%, transparent 60%),
+      var(--black);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    animation: gridFloat 20s linear infinite;
+  }
+  @keyframes gridFloat { from { transform: translateY(0); } to { transform: translateY(80px); } }
+
+  .hero-content { position: relative; text-align: center; z-index: 2; }
+
+  .hero-eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 2rem;
+    opacity: 0; animation: fadeUp 1s 0.5s forwards;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 15vw, 14rem);
+    line-height: 0.9;
+    letter-spacing: 0.05em;
+    opacity: 0; animation: fadeUp 1s 0.7s forwards;
+  }
+  .hero-title .gold {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 40%, #FFF5D6 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 300% 100%;
+    animation: fadeUp 1s 0.7s forwards, goldShimmer 4s 2s infinite;
+  }
+  @keyframes goldShimmer {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+  }
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    color: var(--grey);
+    margin-top: 1.5rem;
+    letter-spacing: 0.1em;
+    opacity: 0; animation: fadeUp 1s 0.9s forwards;
+  }
+  .hero-scroll {
+    position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+    opacity: 0; animation: fadeUp 1s 1.5s forwards;
+  }
+  .hero-scroll span {
+    font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--grey);
+  }
+  .scroll-line {
+    width: 1px; height: 60px;
+    background: linear-gradient(var(--gold), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  /* ─── FLOATING FRAMES ─── */
+  .hero-frames {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .frame {
+    position: absolute;
+    border: 1px solid rgba(201,168,76,0.2);
+    animation: floatFrame 8s ease-in-out infinite;
+  }
+  .frame:nth-child(1) { width: 180px; height: 240px; top: 15%; left: 5%; animation-delay: 0s; }
+  .frame:nth-child(2) { width: 120px; height: 160px; top: 60%; right: 8%; animation-delay: -3s; }
+  .frame:nth-child(3) { width: 90px; height: 120px; bottom: 20%; left: 15%; animation-delay: -5s; }
+  .frame:nth-child(4) { width: 60px; height: 80px; top: 30%; right: 20%; animation-delay: -2s; }
+  @keyframes floatFrame {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-20px) rotate(1deg); }
+    66% { transform: translateY(10px) rotate(-1deg); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTIONS COMMON ─── */
+  section { padding: 8rem 4rem; }
+  .section-label {
+    font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 300; line-height: 1.1;
+  }
+  .gold-line {
+    width: 60px; height: 1px; background: var(--gold); margin: 2rem 0;
+  }
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ─── ABOUT ─── */
+  #about {
+    background: var(--black-soft);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #about::before {
+    content: 'YAADE';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20vw;
+    color: rgba(201,168,76,0.03);
+    right: -2%;
+    bottom: -5%;
+    pointer-events: none;
+    letter-spacing: 0.1em;
+  }
+  .about-visual {
+    position: relative; height: 500px;
+  }
+  .about-box {
+    position: absolute;
+    border: 1px solid rgba(201,168,76,0.3);
+  }
+  .about-box-1 { inset: 0; background: var(--black-mid); }
+  .about-box-2 { top: 30px; left: 30px; right: -30px; bottom: -30px; border-color: rgba(201,168,76,0.1); z-index: -1; }
+  .about-inner {
+    position: absolute; inset: 2rem;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    background: linear-gradient(to top, rgba(201,168,76,0.15), transparent);
+  }
+  .about-stat {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem; color: var(--gold); line-height: 1;
+  }
+  .about-stat-label { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--grey); }
+  .about-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem; line-height: 1.9; color: #aaa;
+    margin-top: 1.5rem;
+  }
+  .about-stats-row { display: flex; gap: 3rem; margin-top: 3rem; }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; color: var(--gold); display: block;
+  }
+  .stat-desc { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--grey); }
+
+  /* ─── SERVICES ─── */
+  #services { background: var(--black); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 4rem;
+    border: 1px solid rgba(201,168,76,0.1);
+  }
+  .service-card {
+    background: var(--black-card);
+    padding: 3rem 2.5rem;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.4s, background 0.4s;
+    cursor: none;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .service-card:hover { border-color: rgba(201,168,76,0.4); background: var(--black-mid); }
+  .service-card:hover::before { opacity: 1; }
+  .service-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem; color: rgba(201,168,76,0.1);
+    line-height: 1; margin-bottom: 1rem;
+    transition: color 0.4s;
+  }
+  .service-card:hover .service-num { color: rgba(201,168,76,0.3); }
+  .service-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .service-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 600;
+    color: var(--white); margin-bottom: 1rem;
+  }
+  .service-desc { font-size: 0.8rem; color: var(--grey); line-height: 1.9; letter-spacing: 0.02em; }
+  .service-line {
+    width: 0; height: 1px; background: var(--gold);
+    margin-top: 2rem; transition: width 0.5s ease;
+  }
+  .service-card:hover .service-line { width: 40px; }
+
+  /* ─── PORTFOLIO ─── */
+  #portfolio { background: var(--black-soft); }
+  .portfolio-filter {
+    display: flex; gap: 0.5rem; margin: 3rem 0;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: none; border: 1px solid rgba(201,168,76,0.2);
+    color: var(--grey); font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    padding: 0.6rem 1.5rem; cursor: none;
+    transition: all 0.3s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--gold); border-color: var(--gold); color: var(--black);
+  }
+  .portfolio-masonry {
+    columns: 3;
+    column-gap: 1rem;
+  }
+  .portfolio-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+  .portfolio-placeholder {
+    width: 100%;
+    background: var(--black-card);
+    border: 1px solid rgba(201,168,76,0.08);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+  }
+  .portfolio-item:hover .portfolio-placeholder { transform: scale(1.02); }
+  .portfolio-placeholder::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg,
+      rgba(201,168,76,0.03) 0%,
+      rgba(201,168,76,0.08) 50%,
+      rgba(201,168,76,0.03) 100%);
+    animation: shimmerBox 3s ease infinite;
+    background-size: 200% 200%;
+  }
+  @keyframes shimmerBox {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+  .portfolio-placeholder .ph-icon {
+    font-size: 3rem; opacity: 0.15; z-index: 1;
+  }
+  .portfolio-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 50%);
+    opacity: 0; transition: opacity 0.4s;
+    display: flex; align-items: flex-end;
+    padding: 1.5rem;
+    z-index: 2;
+  }
+  .portfolio-item:hover .portfolio-overlay { opacity: 1; }
+  .portfolio-info { }
+  .portfolio-cat {
+    font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold);
+    display: block; margin-bottom: 0.3rem;
+  }
+  .portfolio-title-item {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; color: var(--white);
+  }
+  /* different heights for masonry feel */
+  .ph-h1 { height: 280px; }
+  .ph-h2 { height: 380px; }
+  .ph-h3 { height: 220px; }
+  .ph-h4 { height: 340px; }
+  .ph-h5 { height: 260px; }
+  .ph-h6 { height: 400px; }
+  .ph-h7 { height: 300px; }
+  .ph-h8 { height: 250px; }
+  .ph-h9 { height: 360px; }
+
+  /* ─── PROCESS ─── */
+  #process { background: var(--black); overflow: hidden; }
+  .process-timeline {
+    display: flex; gap: 0; margin-top: 5rem;
+    position: relative;
+  }
+  .process-timeline::before {
+    content: ''; position: absolute;
+    top: 2.5rem; left: 2.5rem; right: 2.5rem; height: 1px;
+    background: linear-gradient(90deg, var(--gold), rgba(201,168,76,0.2));
+  }
+  .process-step {
+    flex: 1; padding: 0 2rem;
+    position: relative;
+    text-align: center;
+  }
+  .step-dot {
+    width: 5rem; height: 5rem;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 2rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+    background: var(--black);
+    position: relative;
+    z-index: 1;
+    transition: background 0.4s, border-color 0.4s;
+  }
+  .process-step:hover .step-dot {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+  }
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; font-weight: 600; margin-bottom: 0.8rem;
+  }
+  .step-desc { font-size: 0.75rem; color: var(--grey); line-height: 1.8; }
+
+  /* ─── TESTIMONIALS ─── */
+  #testimonials { background: var(--black-soft); position: relative; overflow: hidden; }
+  #testimonials::before {
+    content: '"';
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40vw;
+    line-height: 1;
+    color: rgba(201,168,76,0.02);
+    top: -5%; left: -2%;
+    pointer-events: none;
+  }
+  .testimonials-track {
+    display: flex; gap: 2rem;
+    margin-top: 4rem;
+    overflow: hidden;
+  }
+  .testimonial-slide { display: none; flex: 1; }
+  .testimonial-slide.active { display: block; }
+  .testimonial-card {
+    background: var(--black-card);
+    border: 1px solid rgba(201,168,76,0.12);
+    padding: 3rem;
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .testimonial-card::before {
+    content: '★★★★★';
+    display: block;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+    font-size: 0.8rem;
+  }
+  .testimonial-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+  .testimonial-author {
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .author-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: var(--black-mid);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--gold);
+  }
+  .author-name { font-size: 0.85rem; font-weight: 500; }
+  .author-role { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+  .testimonial-nav {
+    display: flex; gap: 1rem; justify-content: center; margin-top: 3rem;
+  }
+  .t-dot {
+    width: 30px; height: 2px; background: rgba(201,168,76,0.2);
+    cursor: none; transition: background 0.3s, width 0.3s;
+  }
+  .t-dot.active { background: var(--gold); width: 60px; }
+
+  /* ─── PRICING ─── */
+  #pricing { background: var(--black); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 4rem;
+  }
+  .pricing-card {
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 3rem 2.5rem;
+    position: relative;
+    transition: border-color 0.4s, transform 0.4s;
+    background: var(--black-card);
+  }
+  .pricing-card.featured {
+    border-color: var(--gold);
+    transform: translateY(-20px);
+    background: linear-gradient(135deg, var(--black-card) 0%, rgba(201,168,76,0.05) 100%);
+  }
+  .pricing-badge {
+    position: absolute; top: -1px; right: 2rem;
+    background: var(--gold); color: var(--black);
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    font-weight: 500;
+  }
+  .pricing-tier { font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .pricing-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 1.5rem; }
+  .pricing-price {
+    font-family: 'Bebas Neue', sans-serif; font-size: 4rem; color: var(--gold-light); line-height: 1;
+  }
+  .pricing-price sup { font-size: 1.5rem; }
+  .pricing-per { font-size: 0.65rem; color: var(--grey); letter-spacing: 0.2em; margin-bottom: 2rem; display: block; margin-top: 0.3rem; }
+  .pricing-divider { height: 1px; background: rgba(201,168,76,0.15); margin-bottom: 2rem; }
+  .pricing-features { list-style: none; }
+  .pricing-features li {
+    font-size: 0.8rem; color: var(--grey); padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .pricing-features li::before { content: '✦'; color: var(--gold); font-size: 0.5rem; }
+  .pricing-btn {
+    display: block; text-align: center; margin-top: 2.5rem;
+    padding: 1rem 2rem;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+    transition: all 0.3s; cursor: none;
+    background: none;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .pricing-btn:hover, .pricing-card.featured .pricing-btn {
+    background: var(--gold); color: var(--black);
+  }
+
+  /* ─── CONTACT ─── */
+  #contact {
+    background: var(--black-soft);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: start;
+  }
+  .contact-info { }
+  .contact-detail {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    margin-top: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  .contact-icon {
+    width: 48px; height: 48px;
+    border: 1px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+    color: var(--gold);
+  }
+  .contact-detail-label { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem; }
+  .contact-detail-value { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--white); }
+  .contact-form { display: flex; flex-direction: column; gap: 1.5rem; }
+  .form-group { position: relative; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    background: var(--black-card);
+    border: 1px solid rgba(201,168,76,0.15);
+    color: var(--white);
+    padding: 1.2rem 1.5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    outline: none;
+    transition: border-color 0.3s;
+    appearance: none;
+    cursor: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color: var(--gold);
+  }
+  .form-group label {
+    position: absolute;
+    top: -0.5rem; left: 1rem;
+    font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold); background: var(--black-card); padding: 0 0.5rem;
+  }
+  .form-group textarea { height: 120px; resize: none; }
+  .form-group select option { background: var(--black-card); }
+  .submit-btn {
+    background: none; border: 1px solid var(--gold);
+    color: var(--gold); padding: 1.2rem 3rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+    cursor: none; transition: all 0.3s; align-self: flex-start;
+    position: relative; overflow: hidden;
+  }
+  .submit-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--gold); transform: translateX(-101%);
+    transition: transform 0.4s ease;
+  }
+  .submit-btn:hover::before { transform: translateX(0); }
+  .submit-btn span { position: relative; z-index: 1; }
+  .submit-btn:hover span { color: var(--black); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--black);
+    padding: 4rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 2rem;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; letter-spacing: 0.3em; color: var(--gold);
+  }
+  .footer-logo span { color: var(--white); }
+  .footer-links { display: flex; gap: 2rem; list-style: none; }
+  .footer-links a { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); text-decoration: none; transition: color 0.3s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-social { display: flex; gap: 1rem; }
+  .social-icon {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(201,168,76,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--grey); font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s; cursor: none;
+  }
+  .social-icon:hover { border-color: var(--gold); color: var(--gold); }
+  .footer-copy { width: 100%; text-align: center; font-size: 0.65rem; color: rgba(136,136,136,0.5); letter-spacing: 0.2em; padding-top: 2rem; border-top: 1px solid rgba(201,168,76,0.05); }
+
+  /* ─── MARQUEE ─── */
+  .marquee-section {
+    background: var(--gold);
+    padding: 1.2rem 0;
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem; letter-spacing: 0.4em;
+    color: var(--black);
+    padding-right: 4rem;
+  }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ─── AWARDS ─── */
+  #awards { background: var(--black); padding: 5rem 4rem; }
+  .awards-row {
+    display: flex; gap: 4rem; align-items: center;
+    justify-content: center; flex-wrap: wrap; margin-top: 3rem;
+  }
+  .award-item {
+    text-align: center;
+    border: 1px solid rgba(201,168,76,0.12);
+    padding: 2rem 3rem;
+    transition: border-color 0.4s, background 0.4s;
+  }
+  .award-item:hover { border-color: rgba(201,168,76,0.4); background: var(--black-card); }
+  .award-year {
+    font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: var(--gold); line-height: 1;
+  }
+  .award-name { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-top: 0.5rem; }
+
+  /* ─── SCROLL PROGRESS ─── */
+  #progress-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    z-index: 9999; width: 0%;
+    transition: width 0.1s;
+  }
+
+  /* page transitions */
+  .page-reveal {
+    position: fixed; inset: 0;
+    background: var(--gold);
+    z-index: 8000;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 1.5rem 2rem; }
+    nav.scrolled { padding: 1rem 2rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 2rem; }
+    #about { grid-template-columns: 1fr; gap: 3rem; }
+    .services-grid { grid-template-columns: 1fr; }
+    .portfolio-masonry { columns: 2; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.featured { transform: none; }
+    #contact { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; text-align: center; }
+    .process-timeline { flex-direction: column; }
+    .process-timeline::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="progress-bar"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-text">YAADE</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">YAADE <span>FIILM</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Work</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact" class="nav-cta">Book Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-frames">
+    <div class="frame"></div>
+    <div class="frame"></div>
+    <div class="frame"></div>
+    <div class="frame"></div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">✦ Capturing Moments · Crafting Memories ✦</p>
+    <h1 class="hero-title">
+      <span class="gold">YAADE</span><br>FIILM<br><span class="gold">STUDIIO</span>
+    </h1>
+    <p class="hero-subtitle">Where every frame tells a story</p>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <span class="marquee-text">WEDDINGS ✦ PORTRAITS ✦ FASHION ✦ EVENTS ✦ COMMERCIAL ✦ BOUDOIR ✦ LIFESTYLE ✦ EDITORIAL ✦</span>
+    <span class="marquee-text">WEDDINGS ✦ PORTRAITS ✦ FASHION ✦ EVENTS ✦ COMMERCIAL ✦ BOUDOIR ✦ LIFESTYLE ✦ EDITORIAL ✦</span>
+    <span class="marquee-text">WEDDINGS ✦ PORTRAITS ✦ FASHION ✦ EVENTS ✦ COMMERCIAL ✦ BOUDOIR ✦ LIFESTYLE ✦ EDITORIAL ✦</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual reveal">
+    <div class="about-box about-box-2"></div>
+    <div class="about-box about-box-1">
+      <div class="about-inner">
+        <div class="about-stat" id="counter">0</div>
+        <div class="about-stat-label">Frames of Magic</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-right reveal">
+    <p class="section-label">✦ Our Story</p>
+    <h2 class="section-title">More than a studio.<br><em>A legacy.</em></h2>
+    <div class="gold-line"></div>
+    <p class="about-text">
+      Yaade Fiilm Studiio was born from a love of light, emotion, and the extraordinary ordinary. We don't just take photographs — we create visual poetry that captures the soul of every moment, every face, every feeling.
+    </p>
+    <p class="about-text" style="margin-top:1rem">
+      Based in the heart of the city, our studio blends cinematic storytelling with artistic precision, delivering imagery that transcends time.
+    </p>
+    <div class="about-stats-row">
+      <div class="stat-item">
+        <span class="stat-num" data-target="500">0</span>
+        <span class="stat-desc">Clients Served</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="8">0</span>
+        <span class="stat-desc">Years of Art</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="12">0</span>
+        <span class="stat-desc">Awards Won</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div style="text-align:center" class="reveal">
+    <p class="section-label">✦ What We Create</p>
+    <h2 class="section-title">Our <em>Services</em></h2>
+    <div class="gold-line" style="margin:2rem auto"></div>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <div class="service-icon">💍</div>
+      <h3 class="service-name">Wedding Photography</h3>
+      <p class="service-desc">Your love story, immortalized. From the nervous glance before the ceremony to the golden hour dance — we capture every breath of your perfect day with cinematic elegance.</p>
+      <div class="service-line"></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">02</div>
+      <div class="service-icon">👤</div>
+      <h3 class="service-name">Portrait Sessions</h3>
+      <p class="service-desc">Individual, couple, or family — we craft portraits that reveal character and emotion. Studio-lit masterpieces or golden-hour outdoor sessions, always breathtaking.</p>
+      <div class="service-line"></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">03</div>
+      <div class="service-icon">👗</div>
+      <h3 class="service-name">Fashion & Editorial</h3>
+      <p class="service-desc">High-fashion imagery that speaks to the discerning eye. We collaborate with designers, stylists, and brands to create editorial spreads worthy of any magazine cover.</p>
+      <div class="service-line"></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">04</div>
+      <div class="service-icon">🎪</div>
+      <h3 class="service-name">Event Coverage</h3>
+      <p class="service-desc">Corporate galas, birthday celebrations, cultural events — our team blends invisibly into your event while capturing every milestone, smile, and spectacular moment.</p>
+      <div class="service-line"></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">05</div>
+      <div class="service-icon">📦</div>
+      <h3 class="service-name">Commercial & Brand</h3>
+      <p class="service-desc">Product photography, brand campaigns, and corporate headshots that communicate excellence. Visual assets that elevate your brand above the noise.</p>
+      <div class="service-line"></div>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">06</div>
+      <div class="service-icon">🎬</div>
+      <h3 class="service-name">Cinematic Videography</h3>
+      <p class="service-desc">Film-quality video production for weddings, events, and brands. Drone aerials, cinematic grading, and storytelling that moves people to tears — in the best way.</p>
+      <div class="service-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <p class="section-label reveal">✦ Selected Work</p>
+  <h2 class="section-title reveal">The <em>Gallery</em></h2>
+  <div class="portfolio-filter reveal">
+    <button class="filter-btn active" onclick="filterPortfolio('all', this)">All</button>
+    <button class="filter-btn" onclick="filterPortfolio('wedding', this)">Weddings</button>
+    <button class="filter-btn" onclick="filterPortfolio('portrait', this)">Portraits</button>
+    <button class="filter-btn" onclick="filterPortfolio('fashion', this)">Fashion</button>
+    <button class="filter-btn" onclick="filterPortfolio('event', this)">Events</button>
+  </div>
+  <div class="portfolio-masonry" id="portfolio-grid">
+    <div class="portfolio-item" data-cat="wedding">
+      <div class="portfolio-placeholder ph-h2">
+        <span class="ph-icon">📸</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Wedding</span><span class="portfolio-title-item">Priya & Arjun — Palace Wedding</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="portrait">
+      <div class="portfolio-placeholder ph-h3">
+        <span class="ph-icon">🎭</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Portrait</span><span class="portfolio-title-item">Soulful Session — Studio Collection</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="fashion">
+      <div class="portfolio-placeholder ph-h4">
+        <span class="ph-icon">✨</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Fashion</span><span class="portfolio-title-item">Golden Hour Editorial</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="portrait">
+      <div class="portfolio-placeholder ph-h5">
+        <span class="ph-icon">🌟</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Portrait</span><span class="portfolio-title-item">The Artist — Fine Art Series</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="wedding">
+      <div class="portfolio-placeholder ph-h6">
+        <span class="ph-icon">💫</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Wedding</span><span class="portfolio-title-item">Meena & Vikram — Beachside Vows</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="event">
+      <div class="portfolio-placeholder ph-h3">
+        <span class="ph-icon">🎪</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Event</span><span class="portfolio-title-item">Heritage Gala 2024</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="fashion">
+      <div class="portfolio-placeholder ph-h4">
+        <span class="ph-icon">🔥</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Fashion</span><span class="portfolio-title-item">Noir Campaign — Luxury Brand</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="wedding">
+      <div class="portfolio-placeholder ph-h5">
+        <span class="ph-icon">🌹</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Wedding</span><span class="portfolio-title-item">Rekha & Raj — Garden Ceremony</span></div></div>
+      </div>
+    </div>
+    <div class="portfolio-item" data-cat="portrait">
+      <div class="portfolio-placeholder ph-h6">
+        <span class="ph-icon">🎨</span>
+        <div class="portfolio-overlay"><div class="portfolio-info"><span class="portfolio-cat">Portrait</span><span class="portfolio-title-item">Timeless Elegance Series</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div style="text-align:center" class="reveal">
+    <p class="section-label">✦ How We Work</p>
+    <h2 class="section-title">The <em>Process</em></h2>
+    <div class="gold-line" style="margin:2rem auto"></div>
+  </div>
+  <div class="process-timeline">
+    <div class="process-step reveal">
+      <div class="step-dot">01</div>
+      <h3 class="step-title">Discovery</h3>
+      <p class="step-desc">We begin with a conversation — understanding your vision, your story, and the feeling you want captured forever.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-dot">02</div>
+      <h3 class="step-title">Concept & Plan</h3>
+      <p class="step-desc">Mood boards, location scouting, lighting plans — every detail meticulously crafted before we touch a camera.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-dot">03</div>
+      <h3 class="step-title">The Shoot</h3>
+      <p class="step-desc">Magic happens. Our team creates an atmosphere where you feel natural, beautiful, and free — the real you emerges.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-dot">04</div>
+      <h3 class="step-title">Post Production</h3>
+      <p class="step-desc">Every image is hand-edited with cinematic precision. Color grading, retouching, and refinement until it's perfect.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-dot">05</div>
+      <h3 class="step-title">Delivery</h3>
+      <p class="step-desc">Gallery delivery within agreed timelines, premium prints, albums, and digital archives — memories built to last forever.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AWARDS -->
+<section id="awards">
+  <div style="text-align:center" class="reveal">
+    <p class="section-label">✦ Recognition</p>
+    <h2 class="section-title">Honored by <em>Excellence</em></h2>
+  </div>
+  <div class="awards-row">
+    <div class="award-item reveal">
+      <div class="award-year">2024</div>
+      <div class="award-name">Best Wedding Studio<br>Gujarat</div>
+    </div>
+    <div class="award-item reveal">
+      <div class="award-year">2023</div>
+      <div class="award-name">Fashion Photography<br>Excellence Award</div>
+    </div>
+    <div class="award-item reveal">
+      <div class="award-year">2022</div>
+      <div class="award-name">Top 10 Studios<br>India Today</div>
+    </div>
+    <div class="award-item reveal">
+      <div class="award-year">2021</div>
+      <div class="award-name">Creative Vision<br>Award of Merit</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div style="text-align:center" class="reveal">
+    <p class="section-label">✦ Client Love</p>
+    <h2 class="section-title">Words that <em>Warm Us</em></h2>
+    <div class="gold-line" style="margin:2rem auto"></div>
+  </div>
+  <div class="testimonials-track">
+    <div class="testimonial-slide active">
+      <div class="testimonial-card reveal">
+        <p class="testimonial-quote">"Yaade Fiilm Studiio didn't just photograph our wedding — they bottled the emotion of the most beautiful day of our lives. Every time we look at these images, we fall in love all over again."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">P&A</div>
+          <div>
+            <div class="author-name">Priya & Arjun Mehta</div>
+            <div class="author-role">Wedding Couple · Ahmedabad</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-slide">
+      <div class="testimonial-card">
+        <p class="testimonial-quote">"As a designer, I have incredibly high standards for imagery. Yaade delivered fashion editorial work that exceeded every expectation — cinematic, artistic, and absolutely stunning."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">RS</div>
+          <div>
+            <div class="author-name">Riya Shah</div>
+            <div class="author-role">Fashion Designer · Mumbai</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-slide">
+      <div class="testimonial-card">
+        <p class="testimonial-quote">"Our corporate gala was documented with such elegance and professionalism. The team was invisible yet omnipresent — we didn't miss a single moment. Outstanding work."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">VK</div>
+          <div>
+            <div class="author-name">Vivek Kapoor</div>
+            <div class="author-role">CEO · Kapoor Industries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="testimonial-nav">
+    <div class="t-dot active" onclick="goTestimonial(0, this)"></div>
+    <div class="t-dot" onclick="goTestimonial(1, this)"></div>
+    <div class="t-dot" onclick="goTestimonial(2, this)"></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div style="text-align:center" class="reveal">
+    <p class="section-label">✦ Investment</p>
+    <h2 class="section-title">Our <em>Packages</em></h2>
+    <div class="gold-line" style="margin:2rem auto"></div>
+    <p style="color:var(--grey);font-size:0.85rem;font-family:'Cormorant Garamond',serif;font-style:italic;max-width:400px;margin:0 auto;">Every great story deserves a worthy frame. Choose your experience.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="pricing-tier">Silver</div>
+      <div class="pricing-name">Essentials</div>
+      <div class="pricing-price"><sup>₹</sup>15,000</div>
+      <span class="pricing-per">Starting Price</span>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>4 Hour Shoot Session</li>
+        <li>100 Edited Digital Images</li>
+        <li>1 Photographer</li>
+        <li>Online Gallery Delivery</li>
+        <li>2 Week Turnaround</li>
+      </ul>
+      <button class="pricing-btn">Book Essentials</button>
+    </div>
+    <div class="pricing-card featured reveal">
+      <div class="pricing-badge">Most Popular</div>
+      <div class="pricing-tier">Gold</div>
+      <div class="pricing-name">Signature</div>
+      <div class="pricing-price"><sup>₹</sup>45,000</div>
+      <span class="pricing-per">Starting Price</span>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>Full Day Coverage</li>
+        <li>500+ Edited Digital Images</li>
+        <li>2 Photographers + Assistant</li>
+        <li>Premium Album (30 pages)</li>
+        <li>Drone Aerial Shots</li>
+        <li>1 Week Rush Turnaround</li>
+        <li>Complimentary Engagement Shoot</li>
+      </ul>
+      <button class="pricing-btn">Book Signature</button>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="pricing-tier">Platinum</div>
+      <div class="pricing-name">Luxe Legacy</div>
+      <div class="pricing-price">Custom</div>
+      <span class="pricing-per">Bespoke Pricing</span>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>Multi-day Unlimited Coverage</li>
+        <li>Unlimited Edited Images</li>
+        <li>Full Team · Videography Included</li>
+        <li>Luxury Heirloom Album</li>
+        <li>Cinematic Film Edit</li>
+        <li>Priority Everything</li>
+        <li>Dedicated Account Manager</li>
+      </ul>
+      <button class="pricing-btn">Enquire Now</button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-info reveal">
+    <p class="section-label">✦ Get In Touch</p>
+    <h2 class="section-title">Let's Create<br><em>Together</em></h2>
+    <div class="gold-line"></div>
+    <p style="color:var(--grey);font-size:0.85rem;line-height:1.9;margin-bottom:1rem">Ready to immortalize your most precious moments? Reach out — our team responds within 24 hours.</p>
+    <div class="contact-detail">
+      <div class="contact-icon">📍</div>
+      <div>
+        <div class="contact-detail-label">Studio Location</div>
+        <div class="contact-detail-value">Yaade Fiilm Studiio, Ahmedabad, Gujarat, India</div>
+      </div>
+    </div>
+    <div class="contact-detail">
+      <div class="contact-icon">📞</div>
+      <div>
+        <div class="contact-detail-label">Phone / WhatsApp</div>
+        <div class="contact-detail-value">+91 98XXX XXXXX</div>
+      </div>
+    </div>
+    <div class="contact-detail">
+      <div class="contact-icon">✉</div>
+      <div>
+        <div class="contact-detail-label">Email</div>
+        <div class="contact-detail-value">hello@yaadefiilmstudioo.com</div>
+      </div>
+    </div>
+    <div class="contact-detail" style="border:none">
+      <div class="contact-icon">🕐</div>
+      <div>
+        <div class="contact-detail-label">Studio Hours</div>
+        <div class="contact-detail-value">Mon–Sat · 9 AM – 7 PM IST</div>
+      </div>
+    </div>
+  </div>
+  <div class="reveal">
+    <div class="contact-form">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input type="text" placeholder="Priya Sharma">
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" placeholder="priya@email.com">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" placeholder="+91 98XXX XXXXX">
+      </div>
+      <div class="form-group">
+        <label>Service Required</label>
+        <select>
+          <option>Wedding Photography</option>
+          <option>Portrait Session</option>
+          <option>Fashion & Editorial</option>
+          <option>Event Coverage</option>
+          <option>Commercial / Brand</option>
+          <option>Cinematic Videography</option>
+          <option>Custom Package</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Your Message</label>
+        <textarea placeholder="Tell us about your dream shoot…"></textarea>
+      </div>
+      <button class="submit-btn" onclick="handleSubmit(event)"><span>Send Your Enquiry →</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">YAADE <span>FIILM STUDIIO</span></div>
+  <ul class="footer-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="footer-social">
+    <a class="social-icon" href="#" title="Instagram">📸</a>
+    <a class="social-icon" href="#" title="Facebook">f</a>
+    <a class="social-icon" href="#" title="YouTube">▶</a>
+    <a class="social-icon" href="#" title="WhatsApp">💬</a>
+  </div>
+  <p class="footer-copy">© 2025 Yaade Fiilm Studiio. All rights reserved. Crafted with ✦ in Ahmedabad.</p>
+</footer>
+
+<script>
+  // ─── LOADER
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+    }, 2800);
+  });
+
+  // ─── CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let rx = 0, ry = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', e => {
+    cx = e.clientX; cy = e.clientY;
+    cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+  });
+  function animateRing() {
+    rx += (cx - rx) * 0.12;
+    ry += (cy - ry) * 0.12;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a,button,.service-card,.portfolio-item,.award-item,.filter-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform += ' scale(2)';
+      ring.style.width = '60px';
+      ring.style.height = '60px';
+      ring.style.opacity = '1';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width = '40px';
+      ring.style.height = '40px';
+      ring.style.opacity = '0.6';
+    });
+  });
+
+  // ─── NAV SCROLL
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+    const prog = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('progress-bar').style.width = prog + '%';
+  });
+
+  // ─── REVEAL ON SCROLL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), (i % 3) * 100);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // ─── COUNTER
+  function animateCounter(el, target, suffix = '') {
+    let start = 0;
+    const step = Math.ceil(target / 60);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = start + suffix;
+      if (start >= target) clearInterval(timer);
+    }, 30);
+  }
+  const statsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        document.querySelectorAll('.stat-num').forEach(el => {
+          animateCounter(el, parseInt(el.dataset.target), '+');
+        });
+        animateCounter(document.getElementById('counter'), 50000, '+');
+        statsObs.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  const aboutSection = document.getElementById('about');
+  if (aboutSection) statsObs.observe(aboutSection);
+
+  // ─── PORTFOLIO FILTER
+  function filterPortfolio(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.portfolio-item').forEach(item => {
+      if (cat === 'all' || item.dataset.cat === cat) {
+        item.style.opacity = '0';
+        item.style.display = 'block';
+        setTimeout(() => { item.style.transition = 'opacity 0.5s'; item.style.opacity = '1'; }, 10);
+      } else {
+        item.style.opacity = '0';
+        setTimeout(() => { item.style.display = 'none'; }, 500);
+      }
+    });
+  }
+
+  // ─── TESTIMONIALS
+  let currentSlide = 0;
+  function goTestimonial(idx, dot) {
+    document.querySelectorAll('.testimonial-slide').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.t-dot').forEach(d => d.classList.remove('active'));
+    document.querySelectorAll('.testimonial-slide')[idx].classList.add('active');
+    dot.classList.add('active');
+    currentSlide = idx;
+  }
+  setInterval(() => {
+    const next = (currentSlide + 1) % 3;
+    const dots = document.querySelectorAll('.t-dot');
+    goTestimonial(next, dots[next]);
+  }, 5000);
+
+  // ─── FORM SUBMIT
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.currentTarget;
+    btn.querySelector('span').textContent = '✦ Sent! We\'ll be in touch ✦';
+    btn.style.background = 'var(--gold)';
+    btn.style.color = 'var(--black)';
+  }
+
+  // ─── PARALLAX HERO FRAMES
+  document.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    document.querySelectorAll('.frame').forEach((f, i) => {
+      const dir = i % 2 === 0 ? 1 : -1;
+      f.style.transform = `translateY(${y * 0.08 * dir * (i + 1)}px)`;
+    });
+  });
+</script>
+</body>
+</html>
